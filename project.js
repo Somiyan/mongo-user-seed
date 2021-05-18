@@ -99,7 +99,7 @@ exports.ProjectSchema = new mongoose.Schema({
 exports.CategorySchema = new mongoose.Schema({
     category: { type: String, required: false }
 }, { timestamps: true, versionKey: false });
-var url = "mongodb://dev_admin:e49HgPvc79Hn@159.89.171.29:27017/test?authSource=admin";
+var url = "mongodb://admin:re33Z77q#mPj![1@143.110.240.143:27017/p3l_dev?authSource=admin";
 var ProjectModel = mongoose.model('Project', exports.ProjectSchema);
 ;
 var UserModel = mongoose.model('User', app_1.UserSchema);

@@ -17,7 +17,8 @@ exports.UserSchema = new mongoose.Schema({
     cost: { type: Number, required: true },
     location: { type: String, required: true, "default": ' ' }
 }, { timestamps: true, versionKey: false });
-var url = "mongodb://dev_admin:e49HgPvc79Hn@159.89.171.29:27017/test?authSource=admin";
+// var url = "mongodb://dev_admin:e49HgPvc79Hn@159.89.171.29:27017/test?authSource=admin";
+var url = "mongodb://admin:re33Z77q#mPj![1@143.110.240.143:27017/p3l_dev?authSource=admin";
 exports.UserModel = mongoose.model('User', exports.UserSchema);
 mongoose.connect(url, {
     useNewUrlParser: true,

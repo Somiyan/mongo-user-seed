@@ -97,7 +97,7 @@ export const ProjectSchema: mongoose.Schema = new mongoose.Schema({
     projectStatus: { type: Boolean },
     trashProject: { type: Boolean },
     typeOfProjectBasis: { type: String },
-    category: { type: String, ref: 'categories' },
+    category: { type: String, ref: 'Category' },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users',
@@ -118,7 +118,7 @@ export const CategorySchema: mongoose.Schema = new mongoose.Schema({
     category: { type: String, required: false }
 }, { timestamps: true, versionKey: false })
 
-let url = "mongodb://dev_admin:e49HgPvc79Hn@159.89.171.29:27017/test?authSource=admin";
+let url = "mongodb://admin:re33Z77q#mPj![1@143.110.240.143:27017/p3l_dev?authSource=admin";
 
 const ProjectModel = mongoose.model<IProject>('Project', ProjectSchema);
 const UserModel = mongoose.model<IUser>('User', UserSchema);
@@ -137,6 +137,8 @@ let ownerObj: IUser;
 let managerObj: IUser;
 let categoryObj: ICategory;
 let csvData: mongoose.AnyObject = [];
+let startDate: string;
+let endDate: string;
 let csvStream = fastcsv
     .parse({ headers: true })
     .on("data", async (data) => {
@@ -145,6 +147,14 @@ let csvStream = fastcsv
         }
         if (data['projectManagers']) {
             managerObj = await findUser(data['projectManagers']);
+        }
+        if (data['startDate']) {
+            let date = data['startDate'].toString().split('-');
+            startDate = date[1] + "/" + date[0] + "/" + date[2]
+        }
+        if (data['endDate']) {
+            let date = data['endDate'].toString().split('-');
+            endDate = date[1] + "/" + date[0] + "/" + date[2]
         }
         let projectMembers: string[] = [];
         if (data['projectMembers'] === "All Employees") {
@@ -174,12 +184,12 @@ let csvStream = fastcsv
         }
         // console.log(categoryObj)
         await ProjectModel.insertMany({
-            projectTitle: data['projectTitle'] ? data['projectTitle'] : null,
-            projectOwners: [ownerObj._id],
-            projectManagers: [managerObj._id],
+            projectTitle: data['projectTitle'],
+            projectOwners: [ownerObj ? ownerObj._id : ''],
+            projectManagers: [managerObj ? managerObj._id : ''],
             projectMembers: projectMembers,
-            startDate: new Date(),
-            endDate: new Date(),
+            startDate: data['startDate'] ? new Date(startDate) : new Date(),
+            endDate: data['endDate'] ? new Date(endDate) : new Date(),
             projectDescription: data['projectDescription'] ? data['projectDescription'] : '',
             sector: data['sector'] ? data['sector'] : '',
             projectExecution: data['projectExecution'] ? data['projectExecution'] : '',
@@ -195,14 +205,18 @@ let csvStream = fastcsv
             anyAgreementSigned: data['anyAgreementSigned'] ? data['anyAgreementSigned'] : false,
             projectClosed: data['projectClosed'] === "Open" ? true : false,
             oPE: data['oPEAmount'] ? 'true' : 'false',
-            oPEAmount: data['oPEAmount'] ? data['oPEAmount'] : null,
-            subContractBudget: data['subContractBudget'] ? data['subContractBudget'] : null,
-            totalProjectValue: data['totalProjectValue'] ? data['totalProjectValue'] : null,
+            oPEAmount: data['oPEAmount'] ? data['oPEAmount'] : 0,
+            subContractBudget: data['subContractBudget'] ? data['subContractBudget'] : 0,
+            totalProjectValue: data['totalProjectValue'] ? data['totalProjectValue'] : 0,
             projectStatus: data['projectStatus'] === "Active" ? true : false,
             trashProject: data['trashProject'] === "FALSE" ? false : true,
             typeOfProjectBasis: data['typeOfProjectBasis'] ? data['typeOfProjectBasis'] : '',
             category: categoryObj ? categoryObj._id : '',
-            // mileStones: data['mileStones'] ? data['mileStones'] : [],
+            mileStones: [{
+                mileStoneName: '',
+                amount: null,
+                completionDate: '',
+            }],
             // projectTitle: data[1],
             // projectOwners: [ownerObj && ownerObj._id || ''],
             // projectManagers: [managerObj && managerObj._id || ''],
